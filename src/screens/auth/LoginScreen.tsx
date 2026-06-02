@@ -443,9 +443,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: layout.spacing.xl,
-    paddingTop: '35%',
+    paddingTop: 60,
     paddingBottom: 40,
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
   },
   logoGroup: { alignItems: 'center' },
   iconWrapper: {
