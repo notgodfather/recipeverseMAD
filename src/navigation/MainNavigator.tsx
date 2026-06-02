@@ -8,22 +8,24 @@ import SearchScreen from '../screens/search/SearchScreen';
 import CreateRecipeScreen from '../screens/create/CreateRecipeScreen';
 import TrendingScreen from '../screens/trending/TrendingScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
-import { colors } from '../constants/colors';
+import { useTheme } from '../store/themeStore';
 
 const Tab = createBottomTabNavigator();
 
 export default function MainNavigator() {
+  const theme = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarActiveTintColor: colors.text,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: theme.text,
+        tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.white,
+          backgroundColor: theme.background,
           borderTopWidth: 0.5,
-          borderTopColor: colors.border,
+          borderTopColor: theme.border,
           elevation: 0,
           height: Platform.OS === 'ios' ? 85 : 60,
           paddingBottom: Platform.OS === 'ios' ? 25 : 8,

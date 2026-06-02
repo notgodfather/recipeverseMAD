@@ -255,6 +255,22 @@ export default function RecipeDetailScreen({ route, navigation }: any) {
             <HeaderButton icon="share-social-outline" />
           </View>
 
+          {/* Start Cooking Button */}
+          {recipe.steps && recipe.steps.length > 0 && (
+            <TouchableOpacity
+              style={styles.startCookingBtn}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('CookMode', {
+                steps: recipe.steps,
+                ingredients: recipe.ingredients,
+                title: recipe.title,
+              })}
+            >
+              <Ionicons name="flame" size={20} color="#fff" />
+              <Text style={styles.startCookingText}>Start Cooking</Text>
+            </TouchableOpacity>
+          )}
+
           {/* Nutritional Profile */}
           <View style={styles.nutritionSection}>
             <Text style={styles.sectionTitle}>Nutritional Profile</Text>
@@ -541,8 +557,23 @@ const styles = StyleSheet.create({
   actionRow: {
     flexDirection: 'row',
     gap: 16,
-    marginBottom: layout.spacing.xl,
+    marginBottom: layout.spacing.m,
     justifyContent: 'flex-start',
+  },
+  startCookingBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+    marginBottom: layout.spacing.xl,
+  },
+  startCookingText: {
+    fontFamily: fonts.inter.bold,
+    fontSize: 16,
+    color: '#fff',
   },
   headerButton: {
     width: 44,

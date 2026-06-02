@@ -12,6 +12,7 @@ import ChefProfileScreen from '../screens/profile/ChefProfileScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import CreateStoryScreen from '../screens/story/CreateStoryScreen';
 import StoryViewerScreen from '../screens/story/StoryViewerScreen';
+import CookModeScreen from '../screens/recipe/CookModeScreen';
 import { colors } from '../constants/colors';
 
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Notifications" component={NotificationsScreen} />
             <Stack.Screen name="CreateStory" component={CreateStoryScreen} options={{ presentation: 'modal' }} />
             <Stack.Screen name="StoryViewer" component={StoryViewerScreen} options={{ presentation: 'transparentModal', animation: 'fade' }} />
+            <Stack.Screen name="CookMode" component={CookModeScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />

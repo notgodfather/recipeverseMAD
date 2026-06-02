@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { onNotificationsSnapshot } from '../../services/firestoreService';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../store/themeStore';
 import { fonts } from '../../constants/fonts';
 import { layout } from '../../constants/layout';
 
@@ -16,6 +16,7 @@ interface AppHeaderProps {
 export default function AppHeader({ onSearchPress, onNotificationPress }: AppHeaderProps) {
   const navigation = useNavigation<any>();
   const { firebaseUser } = useAuthStore();
+  const theme = useTheme();
   const [hasUnread, setHasUnread] = React.useState(false);
 
   React.useEffect(() => {
@@ -27,21 +28,21 @@ export default function AppHeader({ onSearchPress, onNotificationPress }: AppHea
   }, [firebaseUser?.uid]);
 
   return (
-    <View style={styles.headerWrapper}>
+    <View style={[styles.headerWrapper, { backgroundColor: theme.background, borderBottomColor: theme.borderLight }]}>
       <View style={styles.header}>
-        <Text style={styles.logoText}>RecipeVerse</Text>
+        <Text style={[styles.logoText, { color: theme.text }]}>RecipeVerse</Text>
         
         <View style={styles.rightSection}>
           <TouchableOpacity style={styles.iconButton} onPress={onSearchPress} activeOpacity={0.7}>
-            <Ionicons name="search-outline" size={24} color={colors.text} />
+            <Ionicons name="search-outline" size={24} color={theme.text} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.iconButton} 
             onPress={onNotificationPress || (() => navigation.navigate('Notifications'))} 
             activeOpacity={0.7}
           >
-            {hasUnread && <View style={styles.notificationDot} />}
-            <Ionicons name="heart-outline" size={26} color={colors.text} />
+            {hasUnread && <View style={[styles.notificationDot, { borderColor: theme.background }]} />}
+            <Ionicons name="heart-outline" size={26} color={theme.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -51,9 +52,7 @@ export default function AppHeader({ onSearchPress, onNotificationPress }: AppHea
 
 const styles = StyleSheet.create({
   headerWrapper: {
-    backgroundColor: colors.white,
     borderBottomWidth: 0.5,
-    borderBottomColor: colors.borderLight,
     alignItems: 'center',
   },
   header: {
@@ -63,13 +62,12 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: layout.maxContentWidth,
     paddingHorizontal: layout.spacing.m,
-    paddingTop: 56, // For iOS notch, can adjust for other platforms
+    paddingTop: 56,
     paddingBottom: layout.spacing.s,
   },
   logoText: {
     fontFamily: fonts.playfair.bold,
     fontSize: 24,
-    color: colors.text,
   },
   rightSection: {
     flexDirection: 'row',
@@ -88,9 +86,8 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: '#E84040',
     zIndex: 1,
     borderWidth: 1.5,
-    borderColor: colors.white,
   },
 });

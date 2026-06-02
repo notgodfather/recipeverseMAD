@@ -19,7 +19,7 @@ import {
 
 import AppNavigator from './src/navigation/AppNavigator';
 import { useAuthStore } from './src/store/authStore';
-import { colors } from './src/constants/colors';
+import { ThemeProvider, useTheme } from './src/store/themeStore';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -58,7 +58,33 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
+    <ThemeProvider>
+      <AppContent fontsLoaded={fontsLoaded} fontError={fontError} />
+    </ThemeProvider>
+  );
+}
+
+function AppContent({ fontsLoaded, fontError }: { fontsLoaded: boolean; fontError: any }) {
+  const theme = useTheme();
+  const initAuthListener = useAuthStore((s) => s.initAuthListener);
+
+  useEffect(() => {
+    const unsubscribe = initAuthListener();
+    return unsubscribe;
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]} onLayout={onLayoutRootView}>
       <AppNavigator />
     </View>
   );

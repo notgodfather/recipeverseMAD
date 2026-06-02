@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../store/themeStore';
 import { fonts } from '../../constants/fonts';
 import { layout } from '../../constants/layout';
 
@@ -38,6 +38,7 @@ export default function RecipeCard({
   description,
 }: RecipeCardProps) {
   const heartScale = useRef(new Animated.Value(1)).current;
+  const theme = useTheme();
 
   const handleLike = () => {
     Animated.sequence([
@@ -49,7 +50,7 @@ export default function RecipeCard({
 
   const formatCount = (n: number | string) => {
     if (typeof n === 'number') {
-      return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toString();
     }
     return n;
   };
@@ -57,15 +58,15 @@ export default function RecipeCard({
   const avatarSrc = chefAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(chefName)}&background=EFEFEF&color=262626&size=100`;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Post Header */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <Image source={{ uri: avatarSrc }} style={styles.avatar} />
-          <Text style={styles.chefNameHeader}>{chefName.toLowerCase().replace(/\s+/g, '_')}</Text>
+          <Image source={{ uri: avatarSrc }} style={[styles.avatar, { borderColor: theme.borderLight }]} />
+          <Text style={[styles.chefNameHeader, { color: theme.text }]}>{chefName.toLowerCase().replace(/\s+/g, '_')}</Text>
         </View>
         <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
+          <Ionicons name="ellipsis-horizontal" size={20} color={theme.text} />
         </TouchableOpacity>
       </View>
 
@@ -82,40 +83,40 @@ export default function RecipeCard({
               <Ionicons
                 name={isLiked ? 'heart' : 'heart-outline'}
                 size={28}
-                color={isLiked ? colors.primary : colors.text}
+                color={isLiked ? theme.primary : theme.text}
               />
             </Animated.View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionIcon} onPress={onViewPress}>
-            <Ionicons name="chatbubble-outline" size={26} color={colors.text} style={{ transform: [{ scaleX: -1 }] }} />
+            <Ionicons name="chatbubble-outline" size={26} color={theme.text} style={{ transform: [{ scaleX: -1 }] }} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionIcon}>
-            <Ionicons name="paper-plane-outline" size={26} color={colors.text} />
+            <Ionicons name="paper-plane-outline" size={26} color={theme.text} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={onSavePress} activeOpacity={0.7} style={styles.actionIconRight}>
           <Ionicons
             name={isSaved ? 'bookmark' : 'bookmark-outline'}
             size={26}
-            color={colors.text}
+            color={theme.text}
           />
         </TouchableOpacity>
       </View>
 
       {/* Likes */}
-      <Text style={styles.likesText}>{formatCount(likes)} likes</Text>
+      <Text style={[styles.likesText, { color: theme.text }]}>{formatCount(likes)} likes</Text>
 
       {/* Caption */}
       <View style={styles.captionContainer}>
-        <Text style={styles.captionText}>
-          <Text style={styles.captionUsername}>{chefName.toLowerCase().replace(/\s+/g, '_')} </Text>
+        <Text style={[styles.captionText, { color: theme.text }]}>
+          <Text style={[styles.captionUsername, { color: theme.text }]}>{chefName.toLowerCase().replace(/\s+/g, '_')} </Text>
           {title} {description ? `- ${description}` : ''}
         </Text>
       </View>
 
       {/* Comments link */}
       <TouchableOpacity onPress={onViewPress}>
-        <Text style={styles.viewCommentsText}>View all {formatCount(comments)} comments</Text>
+        <Text style={[styles.viewCommentsText, { color: theme.textSecondary }]}>View all {formatCount(comments)} comments</Text>
       </TouchableOpacity>
     </View>
   );
@@ -123,7 +124,6 @@ export default function RecipeCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.white,
     marginBottom: 16,
     width: '100%',
     alignSelf: 'center',
@@ -146,19 +146,17 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: colors.borderLight,
   },
   chefNameHeader: {
     fontFamily: fonts.inter.semiBold,
     fontSize: 14,
-    color: colors.text,
   },
   moreButton: {
     padding: 4,
   },
   image: {
     width: '100%',
-    aspectRatio: 4 / 5, // Instagram portrait ratio
+    aspectRatio: 4 / 5,
     resizeMode: 'cover',
   },
   actionsRow: {
@@ -179,12 +177,11 @@ const styles = StyleSheet.create({
   actionIconRight: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: -4, // optical alignment
+    marginRight: -4,
   },
   likesText: {
     fontFamily: fonts.inter.semiBold,
     fontSize: 14,
-    color: colors.text,
     paddingHorizontal: 14,
     marginBottom: 6,
   },
@@ -195,18 +192,15 @@ const styles = StyleSheet.create({
   captionUsername: {
     fontFamily: fonts.inter.semiBold,
     fontSize: 14,
-    color: colors.text,
   },
   captionText: {
     fontFamily: fonts.inter.regular,
     fontSize: 14,
-    color: colors.text,
     lineHeight: 18,
   },
   viewCommentsText: {
     fontFamily: fonts.inter.regular,
     fontSize: 14,
-    color: colors.textSecondary,
     paddingHorizontal: 14,
     marginBottom: 10,
   },
