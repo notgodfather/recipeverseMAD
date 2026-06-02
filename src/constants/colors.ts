@@ -1,13 +1,15 @@
 export const colors = {
-  primary: '#D04C2E', // Warm Red / Rust for CTAs
-  primaryLight: '#F9EDE8', // Soft pinkish background
-  accent: '#F1C40F', // Golden yellow for badges
-  background: '#FAF5F2', // Main app background
-  surface: '#FFFFFF', // Cards and white elements
-  text: '#1A1A1A', // Primary text
-  textSecondary: '#6B6B6B', // Subtitles and smaller text
-  border: '#E8E0DB', // Subtle borders
-  success: '#4CAF50', // Follow button etc
+  primary: '#E84040',        // Vibrant red accent (likes, CTAs)
+  primaryLight: '#FFF0F0',   // Very subtle red tint
+  accent: '#E84040',         // Same as primary for consistency
+  background: '#FFFFFF',     // Pure white background
+  surface: '#FFFFFF',        // Cards
+  surfaceAlt: '#FAFAFA',     // Slightly off-white for alternating sections
+  text: '#262626',           // Instagram black
+  textSecondary: '#8E8E8E',  // Instagram grey
+  border: '#DBDBDB',         // Instagram border
+  borderLight: '#EFEFEF',    // Lighter separator
+  success: '#58C322',        // Green
   white: '#FFFFFF',
   black: '#000000',
   transparent: 'transparent',

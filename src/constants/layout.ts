@@ -7,6 +7,7 @@ export const layout = {
     width,
     height,
   },
+  maxContentWidth: 600,  // Instagram-style centered content on wide screens
   spacing: {
     xs: 4,
     s: 8,

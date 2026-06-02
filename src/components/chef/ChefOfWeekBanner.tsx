@@ -1,144 +1,149 @@
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 import { layout } from '../../constants/layout';
 import { getChefOfTheWeek } from '../../services/firestoreService';
+import { useAuthStore } from '../../store/authStore';
 import type { UserProfile } from '../../types/user';
 
-const FALLBACK_CHEF_IMAGE = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80';
+const FALLBACK_CHEF_IMAGE = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=200&q=80';
 
 export default function ChefOfWeekBanner() {
   const navigation = useNavigation<any>();
+  const { profile, firebaseUser } = useAuthStore();
   const [chef, setChef] = React.useState<UserProfile | null>(null);
 
   React.useEffect(() => {
     getChefOfTheWeek().then(setChef);
   }, []);
 
-  const bgImage = chef?.photoURL || FALLBACK_CHEF_IMAGE;
+  const chefImage = chef?.photoURL || FALLBACK_CHEF_IMAGE;
   const chefName = chef?.displayName || 'Marco Rossi';
-  const chefBio = chef?.bio || chef?.specialty || 'Bringing the authentic soul of Tuscany to your home kitchen.';
+  
+  const myAvatarUri = profile?.photoURL ?? firebaseUser?.photoURL ?? 
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.displayName || 'Chef')}&background=E84040&color=fff&size=100`;
 
   return (
-    <View style={styles.wrapper}>
-      <ImageBackground
-        source={{ uri: bgImage }}
-        style={styles.container}
-        imageStyle={styles.image}
+    <View style={styles.container}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.overlay}>
-          {/* Badge */}
-          <View style={styles.badge}>
-            <Ionicons name="trophy" size={10} color="#3A2A2A" />
-            <Text style={styles.badgeText}>CHEF OF THE WEEK</Text>
+        {/* "Your Story" item */}
+        <TouchableOpacity style={styles.storyItem} activeOpacity={0.8}>
+          <View style={styles.myStoryImageContainer}>
+            <Image source={{ uri: myAvatarUri }} style={styles.storyImage} />
+            <View style={styles.addStoryIconContainer}>
+              <Text style={styles.addStoryIcon}>+</Text>
+            </View>
           </View>
+          <Text style={styles.storyName} numberOfLines={1}>Your story</Text>
+        </TouchableOpacity>
 
-          {/* Name block */}
-          <View style={styles.textBlock}>
-            <Text style={styles.meetText}>Meet Chef</Text>
-            <Text style={styles.chefName}>{chefName}</Text>
-            <Text style={styles.description} numberOfLines={2}>
-              {chefBio}
-            </Text>
-
-            {/* CTA */}
-            <TouchableOpacity 
-              style={styles.button} 
-              activeOpacity={0.85}
-              onPress={() => {
-                if (chef?.uid) {
-                  navigation.navigate('ChefProfile', { chefId: chef.uid });
-                }
-              }}
-            >
-              <Text style={styles.buttonText}>View Profile</Text>
-              <Ionicons name="arrow-forward" size={14} color={colors.white} />
-            </TouchableOpacity>
+        {/* Featured Chef */}
+        <TouchableOpacity 
+          style={styles.storyItem} 
+          activeOpacity={0.8}
+          onPress={() => {
+            if (chef?.uid) {
+              navigation.navigate('Profile', { screen: 'ChefProfile', params: { chefId: chef.uid } });
+            }
+          }}
+        >
+          <View style={styles.storyRing}>
+            <Image source={{ uri: chefImage }} style={styles.storyImage} />
           </View>
-        </View>
-      </ImageBackground>
+          <Text style={styles.storyName} numberOfLines={1}>{chefName}</Text>
+        </TouchableOpacity>
+
+        {/* Dummy stories to fill space and look like Instagram */}
+        {[
+          { id: '1', name: 'gordon_ramsay', img: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=200&q=80' },
+          { id: '2', name: 'julia_childs', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80' },
+          { id: '3', name: 'jamie_o', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80' },
+        ].map((dummy) => (
+          <TouchableOpacity key={dummy.id} style={styles.storyItem} activeOpacity={0.8}>
+            <View style={styles.storyRing}>
+              <Image source={{ uri: dummy.img }} style={styles.storyImage} />
+            </View>
+            <Text style={styles.storyName} numberOfLines={1}>{dummy.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginHorizontal: layout.spacing.m,
-    marginBottom: layout.spacing.l,
-    borderRadius: layout.borderRadius.xl,
-    overflow: 'hidden',
-    shadowColor: '#3D2020',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
-    elevation: 6,
-  },
   container: {
-    height: 200,
-    justifyContent: 'flex-end',
-  },
-  image: {
-    resizeMode: 'cover',
-  },
-  overlay: {
-    flex: 1,
-    padding: layout.spacing.l,
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(20, 10, 5, 0.5)',
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.accent,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: layout.borderRadius.m,
-  },
-  badgeText: {
-    fontFamily: fonts.inter.bold,
-    fontSize: 9,
-    color: '#3A2A2A',
-    letterSpacing: 1,
-  },
-  textBlock: {
-    gap: 4,
-  },
-  meetText: {
-    fontFamily: fonts.inter.semiBold,
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  chefName: {
-    fontFamily: fonts.playfair.bold,
-    fontSize: 28,
-    color: colors.white,
-    fontStyle: 'italic',
-  },
-  description: {
-    fontFamily: fonts.inter.medium,
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.75)',
-    lineHeight: 18,
-    marginBottom: 4,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#DE5A3D',
-    alignSelf: 'flex-start',
-    paddingHorizontal: layout.spacing.l,
+    backgroundColor: colors.white,
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.borderLight,
     paddingVertical: 10,
-    borderRadius: layout.borderRadius.round,
+    width: '100%',
+    alignItems: 'center', // useful for web max-width
   },
-  buttonText: {
-    fontFamily: fonts.inter.bold,
+  scrollContent: {
+    paddingHorizontal: layout.spacing.m,
+    gap: 16,
+    width: '100%',
+    maxWidth: layout.maxContentWidth,
+  },
+  storyItem: {
+    alignItems: 'center',
+    width: 72,
+  },
+  storyRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 2,
+    borderColor: colors.primary, // Red ring for unseen story
+    padding: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  myStoryImageContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    padding: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  storyImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 33,
+    backgroundColor: colors.borderLight,
+  },
+  addStoryIconContainer: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.primary,
+    borderWidth: 2,
+    borderColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addStoryIcon: {
     color: colors.white,
-    fontSize: 13,
+    fontSize: 14,
+    lineHeight: 16,
+    fontWeight: 'bold',
+  },
+  storyName: {
+    marginTop: 4,
+    fontFamily: fonts.inter.regular,
+    fontSize: 11,
+    color: colors.text,
+    textAlign: 'center',
   },
 });

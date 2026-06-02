@@ -14,7 +14,7 @@ export default function CategoryChip({ label, isActive, onPress }: CategoryChipP
     <TouchableOpacity 
       style={[styles.container, isActive ? styles.activeContainer : styles.inactiveContainer]}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       <Text style={[styles.text, isActive ? styles.activeText : styles.inactiveText]}>
         {label}
@@ -25,25 +25,28 @@ export default function CategoryChip({ label, isActive, onPress }: CategoryChipP
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginRight: 8,
+    borderWidth: 1,
   },
   activeContainer: {
-    backgroundColor: '#B43015', // Dark red from mockup
+    backgroundColor: colors.text, // Black background like IG selected pills
+    borderColor: colors.text,
   },
   inactiveContainer: {
-    backgroundColor: '#F9DBD1', // Light pink background for inactive tabs
+    backgroundColor: colors.white, 
+    borderColor: colors.border,
   },
   text: {
-    fontFamily: fonts.inter.semiBold,
-    fontSize: 13,
+    fontFamily: fonts.inter.medium,
+    fontSize: 14,
   },
   activeText: {
     color: colors.white,
   },
   inactiveText: {
-    color: '#8A5A4A', // Brownish text for inactive
+    color: colors.text,
   },
 });

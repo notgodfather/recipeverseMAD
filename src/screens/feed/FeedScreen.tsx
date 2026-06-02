@@ -6,74 +6,62 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
   Text,
 } from 'react-native';
 import AppHeader from '../../components/common/AppHeader';
 import ChefOfWeekBanner from '../../components/chef/ChefOfWeekBanner';
-import CategoryChip from '../../components/common/CategoryChip';
 import RecipeCard from '../../components/recipe/RecipeCard';
-import RecipeCardWide from '../../components/recipe/RecipeCardWide';
 import { useRecipeStore, Recipe } from '../../store/recipeStore';
 import { useAuthStore } from '../../store/authStore';
 import { colors } from '../../constants/colors';
-import { categories } from '../../constants/categories';
 import { fonts } from '../../constants/fonts';
 import { layout } from '../../constants/layout';
 
 // ── Skeleton loader card ────────────────────────────────────
 const SkeletonCard = () => (
   <View style={skeleton.container}>
-    <View style={skeleton.image} />
-    <View style={skeleton.row}>
+    <View style={skeleton.headerRow}>
       <View style={skeleton.avatar} />
-      <View style={skeleton.textBlock}>
-        <View style={skeleton.titleLine} />
-        <View style={skeleton.subtitleLine} />
-      </View>
+      <View style={skeleton.titleLine} />
     </View>
-    <View style={skeleton.tagsRow}>
-      <View style={skeleton.tag} />
-      <View style={skeleton.tag} />
+    <View style={skeleton.image} />
+    <View style={skeleton.actionsRow}>
+      <View style={skeleton.icon} />
+      <View style={skeleton.icon} />
+      <View style={skeleton.icon} />
     </View>
+    <View style={skeleton.subtitleLine} />
+    <View style={skeleton.subtitleLineLong} />
   </View>
 );
 
 const skeleton = StyleSheet.create({
-  container: { marginHorizontal: 16, marginBottom: 28 },
-  image: { height: 220, borderRadius: 20, backgroundColor: '#EDE0DB' },
-  row: { flexDirection: 'row', alignItems: 'center', marginTop: 14, gap: 12 },
-  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#EDE0DB' },
-  textBlock: { flex: 1, gap: 8 },
-  titleLine: { height: 16, borderRadius: 8, backgroundColor: '#EDE0DB', width: '75%' },
-  subtitleLine: { height: 11, borderRadius: 6, backgroundColor: '#F2E8E4', width: '45%' },
-  tagsRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  tag: { height: 24, width: 60, borderRadius: 12, backgroundColor: '#F2E8E4' },
+  container: { marginBottom: 20, width: '100%', maxWidth: layout.maxContentWidth, alignSelf: 'center' },
+  headerRow: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 },
+  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.borderLight },
+  titleLine: { height: 12, borderRadius: 6, backgroundColor: colors.borderLight, width: 120 },
+  image: { width: '100%', aspectRatio: 4 / 5, backgroundColor: colors.borderLight },
+  actionsRow: { flexDirection: 'row', padding: 12, gap: 16 },
+  icon: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.borderLight },
+  subtitleLine: { height: 10, borderRadius: 5, backgroundColor: colors.borderLight, width: 100, marginLeft: 12, marginBottom: 8 },
+  subtitleLineLong: { height: 10, borderRadius: 5, backgroundColor: colors.borderLight, width: '80%', marginLeft: 12 },
 });
 // ────────────────────────────────────────────────────────────
 
 export default function FeedScreen({ navigation }: any) {
-  const [activeCategory, setActiveCategory] = useState('All Recipes');
   const [refreshing, setRefreshing] = useState(false);
 
   const { recipes, likedRecipes, savedRecipes, toggleLike, toggleSave, isLoading, initRecipeFeed } =
     useRecipeStore();
   const { firebaseUser } = useAuthStore();
 
-  // Start the live Firestore listener when the screen mounts
   useEffect(() => {
     const unsubscribe = initRecipeFeed();
-    return unsubscribe; // cleans up on unmount
+    return unsubscribe;
   }, []);
-
-  const filteredRecipes =
-    activeCategory === 'All Recipes'
-      ? recipes
-      : recipes.filter((r) => r.category === activeCategory);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // The onSnapshot listener auto-updates — just give a brief visual delay
     setTimeout(() => setRefreshing(false), 800);
   }, []);
 
@@ -82,34 +70,16 @@ export default function FeedScreen({ navigation }: any) {
   const renderHeader = () => (
     <>
       <ChefOfWeekBanner />
-      <View style={styles.categoriesContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesScroll}
-        >
-          {categories.map((cat) => (
-            <CategoryChip
-              key={cat}
-              label={cat}
-              isActive={activeCategory === cat}
-              onPress={() => setActiveCategory(cat)}
-            />
-          ))}
-        </ScrollView>
-      </View>
     </>
   );
 
-  // ── Loading state ─────────────────────────────────────────
   if (isLoading) {
     return (
       <View style={styles.container}>
         <AppHeader />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
-          <ChefOfWeekBanner />
-          <View style={{ height: 16 }} />
-          <SkeletonCard />
+          {renderHeader()}
+          <View style={styles.divider} />
           <SkeletonCard />
           <SkeletonCard />
         </ScrollView>
@@ -117,18 +87,15 @@ export default function FeedScreen({ navigation }: any) {
     );
   }
 
-  // ── Empty state ───────────────────────────────────────────
-  if (!isLoading && filteredRecipes.length === 0) {
+  if (!isLoading && recipes.length === 0) {
     return (
       <View style={styles.container}>
         <AppHeader />
         {renderHeader()}
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No recipes yet</Text>
+          <Text style={styles.emptyTitle}>Welcome to RecipeVerse</Text>
           <Text style={styles.emptySubtitle}>
-            {activeCategory === 'All Recipes'
-              ? 'Run the seed script to populate the feed with real recipes.'
-              : `No ${activeCategory} recipes found. Try a different category.`}
+            Follow chefs to see their recipes here, or run the seed script to populate the feed.
           </Text>
         </View>
       </View>
@@ -139,7 +106,7 @@ export default function FeedScreen({ navigation }: any) {
     <View style={styles.container}>
       <AppHeader />
       <FlatList
-        data={filteredRecipes}
+        data={recipes}
         keyExtractor={(item: Recipe) => item.id}
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
@@ -148,49 +115,23 @@ export default function FeedScreen({ navigation }: any) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
+            tintColor={colors.text}
           />
         }
         renderItem={({ item }: { item: Recipe }) => {
           const isLiked = likedRecipes.includes(item.id);
           const isSaved = savedRecipes.includes(item.id);
 
-          if (item.type === 'standard') {
-            return (
-              <TouchableOpacity activeOpacity={0.95} onPress={() => navigateToDetail(item.id)}>
-                <RecipeCard
-                  imageUri={item.imageUri}
-                  chefAvatar={item.chefAvatar}
-                  title={item.title}
-                  chefName={item.chefName}
-                  rating={item.rating}
-                  likes={item.likes}
-                  comments={item.comments}
-                  macros={item.macros!}
-                  tags={item.tags}
-                  isLiked={isLiked}
-                  isSaved={isSaved}
-                  onLikePress={() => toggleLike(item.id, firebaseUser?.uid)}
-                  onSavePress={() => toggleSave(item.id, firebaseUser?.uid)}
-                />
-              </TouchableOpacity>
-            );
-          }
-
           return (
-            <RecipeCardWide
+            <RecipeCard
               imageUri={item.imageUri}
               chefAvatar={item.chefAvatar}
               title={item.title}
               chefName={item.chefName}
               rating={item.rating}
-              description={item.description!}
-              prepTime={item.prepTime!}
-              difficulty={item.difficulty!}
-              calories={item.calories!}
-              tags={item.tags}
               likes={item.likes}
+              comments={item.comments}
+              description={item.description}
               isLiked={isLiked}
               isSaved={isSaved}
               onLikePress={() => toggleLike(item.id, firebaseUser?.uid)}
@@ -211,20 +152,19 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 110,
+    backgroundColor: colors.background,
   },
-  categoriesContainer: {
-    marginBottom: layout.spacing.l,
-  },
-  categoriesScroll: {
-    paddingHorizontal: layout.spacing.m,
-    gap: 8,
+  divider: {
+    height: 0.5,
+    backgroundColor: colors.borderLight,
+    marginBottom: 8,
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
-    paddingBottom: 80,
+    paddingTop: 100,
   },
   emptyTitle: {
     fontFamily: fonts.inter.bold,
@@ -233,10 +173,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   emptySubtitle: {
-    fontFamily: fonts.inter.medium,
+    fontFamily: fonts.inter.regular,
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, StyleSheet, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 import FeedScreen from '../screens/feed/FeedScreen';
 import SearchScreen from '../screens/search/SearchScreen';
@@ -17,23 +17,19 @@ export default function MainNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarShowLabel: true,
-        tabBarActiveTintColor: colors.primary,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.primaryLight,
-          borderTopWidth: 0,
+          backgroundColor: colors.white,
+          borderTopWidth: 0.5,
+          borderTopColor: colors.border,
           elevation: 0,
-          height: Platform.OS === 'ios' ? 85 : 65,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 10,
-          paddingTop: 10,
+          height: Platform.OS === 'ios' ? 85 : 60,
+          paddingBottom: Platform.OS === 'ios' ? 25 : 8,
+          paddingTop: 8,
         },
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontFamily: 'Inter_500Medium',
-          marginTop: 2,
-        },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
           switch (route.name) {
@@ -44,33 +40,28 @@ export default function MainNavigator() {
               iconName = focused ? 'search' : 'search-outline';
               break;
             case 'Create':
-              return (
-                <View style={styles.createButtonContainer}>
-                  <View style={styles.createButton}>
-                    <Ionicons name="add" size={24} color={colors.white} />
-                  </View>
-                </View>
-              );
+              iconName = focused ? 'add-circle' : 'add-circle-outline';
+              break;
             case 'Trending':
-              iconName = focused ? 'trending-up' : 'trending-up-outline';
+              iconName = focused ? 'flame' : 'flame-outline';
               break;
             case 'Profile':
-              iconName = focused ? 'person' : 'person-outline';
+              iconName = focused ? 'person-circle' : 'person-circle-outline';
               break;
             default:
               iconName = 'home';
           }
-          return <Ionicons name={iconName} size={24} color={color} />;
+          return <Ionicons name={iconName} size={route.name === 'Create' ? 32 : 26} color={color} />;
         },
       })}
     >
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Search" component={SearchScreen} />
-      <Tab.Screen 
-        name="Create" 
-        component={CreateRecipeScreen} 
-        options={{ 
-          tabBarStyle: { display: 'none' }, // Hide tab bar when creating
+      <Tab.Screen
+        name="Create"
+        component={CreateRecipeScreen}
+        options={{
+          tabBarStyle: { display: 'none' },
         }}
       />
       <Tab.Screen name="Trending" component={TrendingScreen} />
@@ -78,24 +69,3 @@ export default function MainNavigator() {
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  createButtonContainer: {
-    top: -15, // Lift the button up
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  createButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-});
