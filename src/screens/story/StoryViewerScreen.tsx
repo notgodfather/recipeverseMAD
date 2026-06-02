@@ -195,9 +195,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.inter.semiBold,
     fontSize: 14,
     color: colors.white,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadow: '0px 1px 2px rgba(0,0,0,0.5)',
   },
   closeButton: {
     padding: 4,

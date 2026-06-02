@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, ImageBackground,
-  TouchableOpacity, Image, Alert, TextInput, ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+  TouchableOpacity,
+  Image,
+  Alert,
+  TextInput,
+  ActivityIndicator,
+  Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
@@ -252,7 +261,19 @@ export default function RecipeDetailScreen({ route, navigation }: any) {
               color={isSaved ? colors.primary : colors.text}
               onPress={() => toggleSave(recipe.id, firebaseUser?.uid)}
             />
-            <HeaderButton icon="share-social-outline" />
+            <HeaderButton 
+              icon="share-social-outline" 
+              onPress={async () => {
+                try {
+                  await Share.share({
+                    message: `Check out "${recipe.title}" by ${recipe.chefName} on RecipeVerse!`,
+                    url: recipe.imageUri,
+                  });
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            />
           </View>
 
           {/* Start Cooking Button */}

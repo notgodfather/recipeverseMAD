@@ -9,13 +9,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from '../../store/themeStore';
 import {
   AppNotification,
   onNotificationsSnapshot,
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from '../../services/firestoreService';
-import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 import { layout } from '../../constants/layout';
 
@@ -33,6 +33,7 @@ function formatTimeAgo(date: Date): string {
 
 export default function NotificationsScreen({ navigation }: any) {
   const { firebaseUser } = useAuthStore();
+  const theme = useTheme();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
@@ -64,9 +65,17 @@ export default function NotificationsScreen({ navigation }: any) {
     }
   };
 
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('MainTabs');
+    }
+  };
+
   const renderItem = ({ item }: { item: AppNotification }) => {
     let icon = 'notifications';
-    let iconColor = colors.primary;
+    let iconColor = theme.primary;
     let message = '';
 
     if (item.type === 'like') {
@@ -85,50 +94,50 @@ export default function NotificationsScreen({ navigation }: any) {
 
     return (
       <TouchableOpacity
-        style={[styles.notificationCard, !item.read && styles.unreadCard]}
+        style={[styles.notificationCard, { backgroundColor: theme.surface }, !item.read && { backgroundColor: theme.primaryLight }]}
         onPress={() => handleNotificationPress(item)}
         activeOpacity={0.7}
       >
         <View style={styles.avatarContainer}>
           {item.sourceUserAvatar ? (
-            <Image source={{ uri: item.sourceUserAvatar }} style={styles.avatar} />
+            <Image source={{ uri: item.sourceUserAvatar }} style={[styles.avatar, { backgroundColor: theme.borderLight }]} />
           ) : (
             <View style={[styles.avatar, styles.fallbackAvatar]}>
-              <Ionicons name="person" size={16} color={colors.white} />
+              <Ionicons name="person" size={16} color={theme.white} />
             </View>
           )}
-          <View style={[styles.iconBadge, { backgroundColor: iconColor }]}>
-            <Ionicons name={icon as any} size={10} color={colors.white} />
+          <View style={[styles.iconBadge, { backgroundColor: iconColor, borderColor: theme.surface }]}>
+            <Ionicons name={icon as any} size={10} color={theme.white} />
           </View>
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.messageText}>
+          <Text style={[styles.messageText, { color: theme.text }]}>
             <Text style={styles.boldText}>{item.sourceUserName}</Text> {message}
           </Text>
-          <Text style={styles.timeText}>{formatTimeAgo(item.createdAt)}</Text>
+          <Text style={[styles.timeText, { color: theme.textSecondary }]}>{formatTimeAgo(item.createdAt)}</Text>
         </View>
 
-        {!item.read && <View style={styles.unreadDot} />}
+        {!item.read && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.borderLight }]}>
+        <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notifications</Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Notifications</Text>
         <View style={{ width: 24 }} />
       </View>
 
       {notifications.length === 0 ? (
         <View style={styles.emptyState}>
-          <Ionicons name="notifications-off-outline" size={48} color="#E8CFC6" />
-          <Text style={styles.emptyTitle}>No notifications yet</Text>
-          <Text style={styles.emptySubtitle}>
+          <Ionicons name="notifications-off-outline" size={48} color={theme.textSecondary} />
+          <Text style={[styles.emptyTitle, { color: theme.text }]}>No notifications yet</Text>
+          <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
             When people like, comment, or follow you, you'll see it here.
           </Text>
         </View>
@@ -148,7 +157,6 @@ export default function NotificationsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -159,7 +167,6 @@ const styles = StyleSheet.create({
     paddingBottom: layout.spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: '#E8E0DB',
-    backgroundColor: colors.surface,
   },
   backBtn: {
     padding: 4,
@@ -167,7 +174,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: fonts.inter.bold,
     fontSize: 18,
-    color: colors.text,
   },
   listContent: {
     padding: layout.spacing.m,
@@ -175,7 +181,6 @@ const styles = StyleSheet.create({
   notificationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
     padding: layout.spacing.m,
     borderRadius: layout.borderRadius.m,
     marginBottom: 10,
@@ -208,7 +213,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: colors.surface,
   },
   content: {
     flex: 1,
@@ -217,7 +221,6 @@ const styles = StyleSheet.create({
   messageText: {
     fontFamily: fonts.inter.medium,
     fontSize: 14,
-    color: colors.text,
     lineHeight: 20,
   },
   boldText: {
@@ -226,13 +229,11 @@ const styles = StyleSheet.create({
   timeText: {
     fontFamily: fonts.inter.medium,
     fontSize: 12,
-    color: colors.textSecondary,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
   },
   emptyState: {
     flex: 1,
@@ -244,14 +245,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: fonts.inter.bold,
     fontSize: 18,
-    color: colors.text,
     marginTop: layout.spacing.m,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontFamily: fonts.inter.medium,
     fontSize: 14,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },

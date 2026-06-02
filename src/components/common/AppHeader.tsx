@@ -33,7 +33,11 @@ export default function AppHeader({ onSearchPress, onNotificationPress }: AppHea
         <Text style={[styles.logoText, { color: theme.text }]}>RecipeVerse</Text>
         
         <View style={styles.rightSection}>
-          <TouchableOpacity style={styles.iconButton} onPress={onSearchPress} activeOpacity={0.7}>
+          <TouchableOpacity 
+            style={styles.iconButton} 
+            onPress={onSearchPress || (() => navigation.navigate('Search'))} 
+            activeOpacity={0.7}
+          >
             <Ionicons name="search-outline" size={24} color={theme.text} />
           </TouchableOpacity>
           <TouchableOpacity 

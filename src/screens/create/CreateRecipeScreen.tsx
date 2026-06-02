@@ -798,17 +798,25 @@ const styles = StyleSheet.create({
 
   scrollContent: { padding: layout.spacing.m, paddingBottom: 120 },
 
+  uploadContainer: {
+    height: 160,
+    backgroundColor: '#FAF7F5',
+    borderRadius: layout.borderRadius.l,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#E8CFC6',
+    boxShadow: '0px 2px 10px rgba(61, 32, 32, 0.06)',
+  },
+
   // Cards
   card: {
     backgroundColor: colors.surface,
     borderRadius: layout.borderRadius.xl,
     padding: layout.spacing.l,
     marginBottom: layout.spacing.m,
-    shadowColor: '#3D2020',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 2,
+    boxShadow: '0px 2px 10px rgba(61, 32, 32, 0.06)',
   },
 
   // Section header

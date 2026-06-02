@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../store/themeStore';
 import { fonts } from '../../constants/fonts';
@@ -48,6 +48,17 @@ export default function RecipeCard({
     onLikePress?.();
   };
 
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out "${title}" by ${chefName} on RecipeVerse!`,
+        url: imageUri, // works natively on iOS, ignored on some Android
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const formatCount = (n: number | string) => {
     if (typeof n === 'number') {
       return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toString();
@@ -90,7 +101,7 @@ export default function RecipeCard({
           <TouchableOpacity style={styles.actionIcon} onPress={onViewPress}>
             <Ionicons name="chatbubble-outline" size={26} color={theme.text} style={{ transform: [{ scaleX: -1 }] }} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionIcon}>
+          <TouchableOpacity style={styles.actionIcon} onPress={handleShare}>
             <Ionicons name="paper-plane-outline" size={26} color={theme.text} />
           </TouchableOpacity>
         </View>
