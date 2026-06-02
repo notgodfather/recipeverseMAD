@@ -10,6 +10,8 @@ import RecipeDetailScreen from '../screens/recipe/RecipeDetailScreen';
 import EditProfileScreen from '../screens/profile/EditProfileScreen';
 import ChefProfileScreen from '../screens/profile/ChefProfileScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
+import CreateStoryScreen from '../screens/story/CreateStoryScreen';
+import StoryViewerScreen from '../screens/story/StoryViewerScreen';
 import { colors } from '../constants/colors';
 
 const Stack = createNativeStackNavigator();
@@ -37,6 +39,8 @@ export default function AppNavigator() {
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="ChefProfile" component={ChefProfileScreen} />
             <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="CreateStory" component={CreateStoryScreen} options={{ presentation: 'modal' }} />
+            <Stack.Screen name="StoryViewer" component={StoryViewerScreen} options={{ presentation: 'transparentModal', animation: 'fade' }} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />

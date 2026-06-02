@@ -1,26 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 import { layout } from '../../constants/layout';
-import { getChefOfTheWeek } from '../../services/firestoreService';
 import { useAuthStore } from '../../store/authStore';
-import type { UserProfile } from '../../types/user';
-
-const FALLBACK_CHEF_IMAGE = 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=200&q=80';
+import { useStoryStore } from '../../store/storyStore';
 
 export default function ChefOfWeekBanner() {
   const navigation = useNavigation<any>();
   const { profile, firebaseUser } = useAuthStore();
-  const [chef, setChef] = React.useState<UserProfile | null>(null);
+  const { groupedStories, initStoriesFeed } = useStoryStore();
 
-  React.useEffect(() => {
-    getChefOfTheWeek().then(setChef);
+  useEffect(() => {
+    const unsubscribe = initStoriesFeed();
+    return unsubscribe;
   }, []);
-
-  const chefImage = chef?.photoURL || FALLBACK_CHEF_IMAGE;
-  const chefName = chef?.displayName || 'Marco Rossi';
   
   const myAvatarUri = profile?.photoURL ?? firebaseUser?.photoURL ?? 
     `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.displayName || 'Chef')}&background=E84040&color=fff&size=100`;
@@ -33,7 +28,11 @@ export default function ChefOfWeekBanner() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* "Your Story" item */}
-        <TouchableOpacity style={styles.storyItem} activeOpacity={0.8}>
+        <TouchableOpacity 
+          style={styles.storyItem} 
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('CreateStory')}
+        >
           <View style={styles.myStoryImageContainer}>
             <Image source={{ uri: myAvatarUri }} style={styles.storyImage} />
             <View style={styles.addStoryIconContainer}>
@@ -43,33 +42,25 @@ export default function ChefOfWeekBanner() {
           <Text style={styles.storyName} numberOfLines={1}>Your story</Text>
         </TouchableOpacity>
 
-        {/* Featured Chef */}
-        <TouchableOpacity 
-          style={styles.storyItem} 
-          activeOpacity={0.8}
-          onPress={() => {
-            if (chef?.uid) {
-              navigation.navigate('Profile', { screen: 'ChefProfile', params: { chefId: chef.uid } });
-            }
-          }}
-        >
-          <View style={styles.storyRing}>
-            <Image source={{ uri: chefImage }} style={styles.storyImage} />
-          </View>
-          <Text style={styles.storyName} numberOfLines={1}>{chefName}</Text>
-        </TouchableOpacity>
-
-        {/* Dummy stories to fill space and look like Instagram */}
-        {[
-          { id: '1', name: 'gordon_ramsay', img: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=200&q=80' },
-          { id: '2', name: 'julia_childs', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80' },
-          { id: '3', name: 'jamie_o', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80' },
-        ].map((dummy) => (
-          <TouchableOpacity key={dummy.id} style={styles.storyItem} activeOpacity={0.8}>
+        {/* Dynamic Stories from Firestore */}
+        {groupedStories.map((group, index) => (
+          <TouchableOpacity 
+            key={group.userId} 
+            style={styles.storyItem} 
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.navigate('StoryViewer', { 
+                storyGroups: groupedStories, 
+                initialGroupIndex: index 
+              });
+            }}
+          >
             <View style={styles.storyRing}>
-              <Image source={{ uri: dummy.img }} style={styles.storyImage} />
+              <Image source={{ uri: group.userAvatar }} style={styles.storyImage} />
             </View>
-            <Text style={styles.storyName} numberOfLines={1}>{dummy.name}</Text>
+            <Text style={styles.storyName} numberOfLines={1}>
+              {group.userName.toLowerCase().replace(/\s+/g, '_')}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -84,7 +75,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.borderLight,
     paddingVertical: 10,
     width: '100%',
-    alignItems: 'center', // useful for web max-width
+    alignItems: 'center', 
   },
   scrollContent: {
     paddingHorizontal: layout.spacing.m,
@@ -101,7 +92,7 @@ const styles = StyleSheet.create({
     height: 72,
     borderRadius: 36,
     borderWidth: 2,
-    borderColor: colors.primary, // Red ring for unseen story
+    borderColor: colors.primary, 
     padding: 3,
     justifyContent: 'center',
     alignItems: 'center',
